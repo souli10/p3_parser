@@ -43,7 +43,7 @@
          print_usage(argv[0]);
          return EXIT_FAILURE;
      }
-     
+
      const char* input_file = argv[1];
      char* output_file = generate_output_filename(input_file);
      bool debug_mode = true; // Always enable debug mode

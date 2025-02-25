@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": ".",
-      "program": "build/Debug/outDebug",
+      "cwd": "c:/Users/soula/Desktop/All/uni/2nd quarter/Compilers/lab3/p3_parser/src",
+      "program": "c:/Users/soula/Desktop/All/uni/2nd quarter/Compilers/lab3/p3_parser/src/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

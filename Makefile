@@ -1,39 +1,46 @@
-# Compilador y flags
 CC = gcc
-CFLAGS = -Wall -Wextra -I./include
-LDFLAGS = 
+CFLAGS = -Wall -Wextra -g
 
-# Directorios
+# Directory structure
 SRC_DIR = src
-INC_DIR = include
-BUILD_DIR = build
+INCLUDE_DIR = include
+OBJ_DIR = obj
+TEST_DIR = tests
 
-# Archivos fuente y objetos
-SOURCES = $(wildcard $(SRC_DIR)/*.c)
-OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SOURCES))
+# Find all .c files in the source directory
+SRCS = $(wildcard $(SRC_DIR)/*.c)
 
-# Nombre del ejecutable
-TARGET = parser
+# Create corresponding object file paths
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
-# Reglas principales
-all: $(BUILD_DIR) $(TARGET)
+# Target executable
+EXECUTABLE = parser
 
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+# Default target
+all: directories $(EXECUTABLE)
 
-$(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $@ $(LDFLAGS)
+# Create necessary directories
+directories:
+	@mkdir -p $(OBJ_DIR)
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+# Link object files to create executable
+$(EXECUTABLE): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
 
+# Compile source files into object files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -I$(INCLUDE_DIR) -c $< -o $@
+
+# Clean up
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET) *.exe parsed_*
+	rm -rf $(OBJ_DIR) $(EXECUTABLE)
 
-run: $(TARGET)
-	./$(TARGET)
+# Run the parser with a test file
+test: $(EXECUTABLE)
+	./$(EXECUTABLE) $(TEST_DIR)/test_input1.cscn
 
-test: $(TARGET)
-	./$(TARGET) tests/test_input1.cscn
+# Run with custom arguments
+run: $(EXECUTABLE)
+	./$(EXECUTABLE) $(ARGS)
 
-.PHONY: all clean run test
+.PHONY: all clean run test directories
