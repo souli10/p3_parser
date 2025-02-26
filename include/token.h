@@ -1,6 +1,7 @@
 /**
  * @file token.h
  * @brief Token representation and management for bottom-up parser
+ * @members: Group 
  */
 
  #ifndef TOKEN_H
@@ -45,6 +46,14 @@
      bool (*has_next)(struct TokenStream*);   // Function to check if more tokens exist
      Token* (*peek_next)(struct TokenStream*); // Function to peek at next token
  } TokenStream;
+ 
+ /**
+  * @brief Convert a token type string to the corresponding enum value
+  * 
+  * @param type_str String representation of token type (e.g., "NUM", "PLUS")
+  * @return TokenType The corresponding token type enum value
+  */
+ TokenType token_type_from_string(const char* type_str);
  
  /**
   * @brief Create a new token

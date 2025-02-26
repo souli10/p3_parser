@@ -1,6 +1,7 @@
 /**
  * @file utils.c
  * @brief Implementation of utility functions
+ * @members: Group 
  */
 
  #include <stdio.h>
@@ -9,6 +10,9 @@
  #include <stdarg.h>
  #include "../include/utils.h"
  
+ /**
+  * Safe string duplication with error handling
+  */
  char* safe_strdup(const char* str) {
      if (!str) {
          return NULL;
@@ -23,6 +27,9 @@
      return dup;
  }
  
+ /**
+  * Safe memory allocation with error handling
+  */
  void* safe_malloc(size_t size) {
      void* ptr = malloc(size);
      if (!ptr) {
@@ -33,6 +40,9 @@
      return ptr;
  }
  
+ /**
+  * Safe memory reallocation with error handling
+  */
  void* safe_realloc(void* ptr, size_t size) {
      void* new_ptr = realloc(ptr, size);
      if (!new_ptr) {
@@ -43,6 +53,9 @@
      return new_ptr;
  }
  
+ /**
+  * Log error message to stderr
+  */
  void log_error(const char* format, ...) {
      va_list args;
      va_start(args, format);
@@ -54,6 +67,9 @@
      va_end(args);
  }
  
+ /**
+  * Log debug message to stderr if debug mode is enabled
+  */
  void log_debug(bool debug_mode, const char* format, ...) {
      if (!debug_mode) {
          return;
@@ -69,6 +85,9 @@
      va_end(args);
  }
  
+ /**
+  * Format a string using printf-style formatting
+  */
  char* string_format(const char* format, ...) {
      va_list args;
      va_start(args, format);
@@ -94,6 +113,9 @@
      return buffer;
  }
  
+ /**
+  * Append a string to another string, reallocating as needed
+  */
  char* string_append(char* original, const char* append) {
      if (!original) {
          return safe_strdup(append ? append : "");

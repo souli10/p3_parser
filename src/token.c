@@ -1,6 +1,7 @@
 /**
- * @file token.c
- * @brief Implementation of token functions
+ * token.c
+ * Fixed implementation that handles multiple tokens per line
+ * Replace your current token.c with this file
  */
 
  #include <stdio.h>
@@ -30,6 +31,21 @@
      "INVALID"
  };
  
+ /**
+  * Convert token type string to enum
+  */
+ TokenType token_type_from_string(const char* type_str) {
+     for (int i = 0; i <= TOKEN_INVALID; i++) {
+         if (strcmp(type_str, TOKEN_TYPE_NAMES[i]) == 0) {
+             return (TokenType)i;
+         }
+     }
+     return TOKEN_INVALID;
+ }
+ 
+ /**
+  * Create a new token
+  */
  Token* token_create(TokenType type, const char* lexeme, int line, int position) {
      Token* token = (Token*)safe_malloc(sizeof(Token));
      token->type = type;
@@ -40,6 +56,9 @@
      return token;
  }
  
+ /**
+  * Free token memory
+  */
  void token_free(Token* token) {
      if (token) {
          free(token->lexeme);
@@ -47,6 +66,9 @@
      }
  }
  
+ /**
+  * Convert token type to string
+  */
  const char* token_type_to_string(TokenType type) {
      if (type >= TOKEN_NUM && type <= TOKEN_INVALID) {
          return TOKEN_TYPE_NAMES[type];
@@ -54,18 +76,24 @@
      return "UNKNOWN";
  }
  
+ /**
+  * Convert token to string representation
+  */
  char* token_to_string(Token* token) {
      if (!token) {
          return safe_strdup("NULL");
      }
      
      return string_format("<%s, \"%s\", %d, %d>", 
-                         token_type_to_string(token->type),
-                         token->lexeme,
-                         token->line_number,
-                         token->position);
+                          token_type_to_string(token->type),
+                          token->lexeme,
+                          token->line_number,
+                          token->position);
  }
  
+ /**
+  * Create a token stream from a file
+  */
  TokenStream* token_stream_create(const char* filename) {
      FILE* file = fopen(filename, "r");
      if (!file) {
@@ -83,11 +111,22 @@
      
      // Read the first token
      stream->current = scan_token(stream);
+     if (stream->current) {
+         printf("First token: %s, type: %s\n", 
+               stream->current->lexeme, 
+               token_type_to_string(stream->current->type));
+     } else {
+         printf("No tokens read from file\n");
+     }
+     
      stream->head = stream->current;
      
      return stream;
  }
  
+ /**
+  * Free token stream and all its tokens
+  */
  void token_stream_free(TokenStream* stream) {
      if (!stream) {
          return;
@@ -109,6 +148,9 @@
      free(stream);
  }
  
+ /**
+  * Get the next token from the stream
+  */
  Token* get_next_token(TokenStream* stream) {
      if (!stream || !stream->current) {
          return NULL;
@@ -125,16 +167,28 @@
              Token* next_token = scan_token(stream);
              stream->current->next = next_token;
              stream->current = next_token;
+             
+             if (next_token) {
+                 printf("Next token: %s, type: %s\n", 
+                       next_token->lexeme, 
+                       token_type_to_string(next_token->type));
+             }
          }
      }
      
      return token;
  }
  
+ /**
+  * Check if stream has more tokens
+  */
  bool has_more_tokens(TokenStream* stream) {
      return has_next_token(stream);
  }
  
+ /**
+  * Peek at the next token without advancing
+  */
  Token* peek_token(TokenStream* stream) {
      return peek_next_token(stream);
  }
@@ -143,10 +197,16 @@
   * Implementation of internal functions
   */
  
+ /**
+  * Check if stream has a next token
+  */
  static bool has_next_token(TokenStream* stream) {
      return stream && stream->current && stream->current->type != TOKEN_EOF;
  }
  
+ /**
+  * Peek at the next token without advancing
+  */
  static Token* peek_next_token(TokenStream* stream) {
      if (!stream || !stream->current) {
          return NULL;
@@ -155,77 +215,128 @@
  }
  
  /**
-  * Simple scanner that reads .cscn format tokens
-  * This is a simplified implementation for demonstration
+  * Parse tokens from file
+  * FIXED: This function now properly handles multiple tokens per line
   */
  static Token* scan_token(TokenStream* stream) {
      if (!stream || !stream->input_file) {
          return NULL;
      }
      
-     int c;
      static int line = 1;
      static int position = 0;
+     static char buffer[1024] = "";
+     static char* current_pos = NULL;
+     
+     // Initialize or read a new line if needed
+     if (buffer[0] == '\0' || current_pos == NULL || *current_pos == '\0') {
+         if (fgets(buffer, sizeof(buffer), stream->input_file) == NULL) {
+             printf("End of file reached\n");
+             return token_create(TOKEN_EOF, "EOF", line, position);
+         }
+         
+         printf("Read line: '%s'\n", buffer);
+         current_pos = buffer;
+         position = 0;
+     }
      
      // Skip whitespace
-     while ((c = fgetc(stream->input_file)) != EOF) {
-         if (c == '\n') {
+     while (*current_pos && isspace((unsigned char)*current_pos)) {
+         if (*current_pos == '\n') {
              line++;
              position = 0;
-         } else if (!isspace(c)) {
-             position++;
-             break;
          } else {
              position++;
          }
+         current_pos++;
      }
      
-     if (c == EOF) {
-         return token_create(TOKEN_EOF, "EOF", line, position);
+     // If end of line, reset for next line read
+     if (*current_pos == '\0') {
+         buffer[0] = '\0';
+         return scan_token(stream);
      }
      
-     // Create token based on character
-     TokenType type;
-     char lexeme[2] = {c, '\0'};
-     
-     switch (c) {
-         case '+':
-             type = TOKEN_PLUS;
-             break;
-         case '*':
-             type = TOKEN_STAR;
-             break;
-         case '(':
-             type = TOKEN_LPAREN;
-             break;
-         case ')':
-             type = TOKEN_RPAREN;
-             break;
-         default:
-             // Check for numbers
-             if (isdigit(c)) {
-                 char number[32];
-                 int i = 0;
-                 number[i++] = c;
+     // Check if token starts with '<'
+     if (*current_pos == '<') {
+         char* token_start = current_pos;
+         char* token_end = strchr(current_pos, '>');
+         
+         if (token_end) {
+             // Extract token text
+             int token_len = token_end - token_start + 1;
+             char* token_text = (char*)safe_malloc(token_len + 1);
+             strncpy(token_text, token_start, token_len);
+             token_text[token_len] = '\0';
+             
+             printf("Processing token: '%s'\n", token_text);
+             
+             // Parse token components
+             char lexeme[128] = "";
+             char category[128] = "";
+             
+             if (sscanf(token_text, "<%[^,], %[^>]>", lexeme, category) == 2) {
+                 printf("Parsed token: lexeme='%s', category='%s'\n", lexeme, category);
                  
-                 // Read rest of number
-                 while (i < 31 && (c = fgetc(stream->input_file)) != EOF && isdigit(c)) {
-                     number[i++] = c;
-                     position++;
-                 }
+                 // Cleanup
+                 free(token_text);
                  
-                 // Put back last character if not part of number
-                 if (c != EOF && !isdigit(c)) {
-                     ungetc(c, stream->input_file);
-                 }
+                 // Convert category string to token type
+                 TokenType type = token_type_from_string(category);
                  
-                 number[i] = '\0';
-                 return token_create(TOKEN_NUM, number, line, position - i + 1);
-             } else {
-                 // Invalid token
-                 return token_create(TOKEN_INVALID, lexeme, line, position);
+                 // Update position for next call
+                 int token_position = position;
+                 position += token_len;
+                 current_pos = token_end + 1;
+                 
+                 // Create token
+                 return token_create(type, lexeme, line, token_position);
              }
+             else if (sscanf(token_text, "<%[^,],%[^>]>", lexeme, category) == 2) {
+                 // Try alternative format with no space after comma
+                 printf("Parsed token (alt format): lexeme='%s', category='%s'\n", lexeme, category);
+                 
+                 // Cleanup
+                 free(token_text);
+                 
+                 // Convert category string to token type
+                 TokenType type = token_type_from_string(category);
+                 
+                 // Update position for next call
+                 int token_position = position;
+                 position += token_len;
+                 current_pos = token_end + 1;
+                 
+                 // Create token
+                 return token_create(type, lexeme, line, token_position);
+             }
+             
+             free(token_text);
+         }
      }
      
-     return token_create(type, lexeme, line, position);
+     // If we get here, we couldn't parse a token at the current position
+     printf("Invalid token format at line %d, position %d: %.10s...\n", 
+           line, position, current_pos);
+     
+     // Skip to the next '<' or end of line
+     while (*current_pos && *current_pos != '<' && *current_pos != '\n') {
+         current_pos++;
+         position++;
+     }
+     
+     // If we hit a newline, handle it
+     if (*current_pos == '\n') {
+         line++;
+         position = 0;
+         current_pos++;
+         
+         // If at end of buffer, reset for next line read
+         if (*current_pos == '\0') {
+             buffer[0] = '\0';
+         }
+     }
+     
+     // Try again recursively
+     return scan_token(stream);
  }

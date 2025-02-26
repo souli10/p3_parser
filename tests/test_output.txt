@@ -1,0 +1,21 @@
+Step 1:
+Current State: 0
+Stack Contents: [0 $]
+Input Position: 2 + 3 * (4 + 5)
+Operation: SHIFT
+Action: Shift to state 5
+
+Step 2:
+Current State: 5
+Stack Contents: [0 $] [5 2]
+Input Position: + 3 * (4 + 5)
+Operation: REDUCE
+Action: Reduce by rule 7: f → NUM
+
+Step 3:
+Current State: 3
+Stack Contents: [0 $] [3 f]
+Input Position: + 3 * (4 + 5)
+Operation: REDUCE
+Action: Reduce by rule 5: t → f
+

@@ -1,6 +1,7 @@
 /**
  * @file stack.c
  * @brief Implementation of stack functions
+ * @members: Group 
  */
 
  #include <stdio.h>
@@ -9,6 +10,9 @@
  #include "../include/stack.h"
  #include "../include/utils.h"
  
+ /**
+  * Create a new stack
+  */
  Stack* stack_create() {
      Stack* stack = (Stack*)safe_malloc(sizeof(Stack));
      stack->top = NULL;
@@ -16,6 +20,9 @@
      return stack;
  }
  
+ /**
+  * Free stack memory
+  */
  void stack_free(Stack* stack) {
      if (!stack) {
          return;
@@ -31,6 +38,9 @@
      free(stack);
  }
  
+ /**
+  * Push a new element onto the stack
+  */
  bool stack_push(Stack* stack, int state, Token* symbol) {
      if (!stack) {
          return false;
@@ -47,6 +57,9 @@
      return true;
  }
  
+ /**
+  * Pop an element from the stack
+  */
  StackElement* stack_pop(Stack* stack) {
      if (!stack || stack_is_empty(stack)) {
          return NULL;
@@ -60,6 +73,9 @@
      return element;
  }
  
+ /**
+  * Peek at the top element without removing it
+  */
  StackElement* stack_peek(Stack* stack) {
      if (!stack || stack_is_empty(stack)) {
          return NULL;
@@ -68,14 +84,23 @@
      return stack->top;
  }
  
+ /**
+  * Check if stack is empty
+  */
  bool stack_is_empty(Stack* stack) {
      return !stack || stack->top == NULL;
  }
  
+ /**
+  * Get the number of elements in the stack
+  */
  int stack_size(Stack* stack) {
      return stack ? stack->size : 0;
  }
  
+ /**
+  * Get a string representation of the stack
+  */
  char* stack_to_string(Stack* stack) {
      if (!stack) {
          return safe_strdup("[]");

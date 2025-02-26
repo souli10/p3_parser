@@ -1,6 +1,7 @@
 /**
  * @file main.c
  * @brief Main entry point for bottom-up parser
+ * @members: Group 
  */
 
  #include <stdio.h>
@@ -10,14 +11,21 @@
  #include "../include/parser.h"
  #include "../include/utils.h"
  
+ /**
+  * Print program usage information
+  */
  void print_usage(const char* program_name) {
      printf("Usage: %s <input_file>\n", program_name);
      printf("  <input_file>: Path to the input file (.cscn)\n");
-     printf("  Output will be saved to parsed_<input_file>\n");
+     printf("  Output will be saved to <input_file>_p3dbg.txt\n");
  }
  
- // Function to generate output filename
+ /**
+  * Generate output filename from input filename
+  * Follows the format: <input_basename>_p3dbg.txt
+  */
  char* generate_output_filename(const char* input_file) {
+     // Extract the base filename without path
      char* base_name = strrchr(input_file, '/');
      if (base_name == NULL) {
          base_name = strrchr(input_file, '\\');
@@ -29,27 +37,38 @@
          base_name = (char*)input_file; // No path separator found
      }
      
-     // Allocate memory for "parsed_" + base_name + null terminator
-     char* output_file = (char*)safe_malloc(strlen("parsed_") + strlen(base_name) + 1);
+     // Find extension and remove it if present
+     char* basename_copy = safe_strdup(base_name);
+     char* dot = strrchr(basename_copy, '.');
+     if (dot != NULL) {
+         *dot = '\0'; // Truncate at the dot
+     }
      
-     strcpy(output_file, "parsed_");
-     strcat(output_file, base_name);
+     // Create output filename: <basename>_p3dbg.txt
+     char* output_file = string_format("%s_p3dbg.txt", basename_copy);
+     free(basename_copy);
      
      return output_file;
  }
  
+ /**
+  * Main function
+  */
  int main(int argc, char* argv[]) {
+
      if (argc != 2) {
          print_usage(argv[0]);
          return EXIT_FAILURE;
      }
-
+  
      const char* input_file = argv[1];
      char* output_file = generate_output_filename(input_file);
-     bool debug_mode = true; // Always enable debug mode
-     
+
+     bool debug_mode = true; // Always enable debug mode as per the design document
+
      // Create parser
      Parser* parser = parser_create(debug_mode);
+   
      if (!parser) {
          fprintf(stderr, "Error: Failed to create parser\n");
          free(output_file);

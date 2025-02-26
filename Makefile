@@ -1,46 +1,50 @@
+# Makefile for bottom-up parser (Practice 3)
+# Group 
+
+# Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra -I./include
+LDFLAGS = 
 
-# Directory structure
+# Directories
 SRC_DIR = src
-INCLUDE_DIR = include
-OBJ_DIR = obj
-TEST_DIR = tests
+INC_DIR = include
+BUILD_DIR = build
 
-# Find all .c files in the source directory
-SRCS = $(wildcard $(SRC_DIR)/*.c)
+# Source files and objects
+SOURCES = $(wildcard $(SRC_DIR)/*.c)
+OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SOURCES))
 
-# Create corresponding object file paths
-OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+# Executable name
+TARGET = parser
 
-# Target executable
-EXECUTABLE = parser
+# Main rules
+all: $(BUILD_DIR) $(TARGET)
 
-# Default target
-all: directories $(EXECUTABLE)
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
-# Create necessary directories
-directories:
-	@mkdir -p $(OBJ_DIR)
+$(TARGET): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $@ $(LDFLAGS)
 
-# Link object files to create executable
-$(EXECUTABLE): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# Compile source files into object files
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -I$(INCLUDE_DIR) -c $< -o $@
-
-# Clean up
 clean:
-	rm -rf $(OBJ_DIR) $(EXECUTABLE)
+	rm -rf $(BUILD_DIR) $(TARGET) *_p3dbg.txt
 
-# Run the parser with a test file
-test: $(EXECUTABLE)
-	./$(EXECUTABLE) $(TEST_DIR)/test_input1.cscn
+run: $(TARGET)
+	./$(TARGET) $(if $(INPUT),$(INPUT),tests/test_input1.cscn)
 
-# Run with custom arguments
-run: $(EXECUTABLE)
-	./$(EXECUTABLE) $(ARGS)
+test: $(TARGET)
+	./$(TARGET) tests/test_input1.cscn
 
-.PHONY: all clean run test directories
+# Additional targets
+help:
+	@echo "Usage:"
+	@echo "  make          - Build the parser"
+	@echo "  make clean    - Remove compiled files"
+	@echo "  make test     - Run tests with sample input"
+	@echo "  make run INPUT=<file> - Run parser with custom input file"
+
+.PHONY: all clean run test help

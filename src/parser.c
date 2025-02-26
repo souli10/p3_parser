@@ -1,6 +1,7 @@
 /**
  * @file parser.c
  * @brief Implementation of parser functions
+ * @members: Group 
  */
 
  #include <stdio.h>
@@ -14,6 +15,9 @@
  static void init_parser_stack(Parser* parser);
  static char* get_input_position_string(TokenStream* stream);
  
+ /**
+  * Create and initialize parser
+  */
  Parser* parser_create(bool debug_mode) {
      Parser* parser = (Parser*)safe_malloc(sizeof(Parser));
      parser->stack = stack_create();
@@ -30,6 +34,9 @@
      return parser;
  }
  
+ /**
+  * Free parser resources
+  */
  void parser_free(Parser* parser) {
      if (!parser) {
          return;
@@ -49,6 +56,9 @@
      free(parser);
  }
  
+ /**
+  * Main parsing function
+  */
  ParseResult parser_parse(Parser* parser, const char* input_file, const char* output_file) {
      ParseResult result = {
          .success = false,
@@ -169,6 +179,9 @@
      return result;
  }
  
+ /**
+  * Free parsing tables resources
+  */
  void free_parsing_tables(ParsingTables* tables) {
      if (!tables) {
          return;
@@ -196,6 +209,9 @@
      free(tables);
  }
  
+ /**
+  * Perform shift operation
+  */
  bool perform_shift(Parser* parser, int state, Token* token) {
      if (!parser || !token) {
          return false;
@@ -211,6 +227,9 @@
      return result;
  }
  
+ /**
+  * Perform reduce operation
+  */
  bool perform_reduce(Parser* parser, int production_num) {
      if (!parser || !parser->tables || production_num <= 0 || production_num > parser->tables->num_productions) {
          return false;
@@ -258,18 +277,26 @@
      return result;
  }
  
+ /**
+  * Write debugging information to output file/console
+  */
  void write_debug_output(Parser* parser, const char* operation, const char* action) {
-     if (!parser || !parser->debug_mode) {
-         return;
-     }
+    static int step_number = 0;
+    step_number++;
+    
+    char* stack_str = stack_to_string(parser->stack);
+    char* input_pos = get_input_position_string(parser->input);
+    
+    // Always print to console regardless of debug_mode
+    printf("Step %d:\n", step_number);
+    printf("Current State: %d\n", parser->current_state);
+    printf("Stack Contents: %s\n", stack_str);
+    printf("Input Position: %s\n", input_pos);
+    printf("Operation: %s\n", operation);
+    printf("Action: %s\n\n", action);
+    
      
-     static int step_number = 0;
-     step_number++;
-     
-     char* stack_str = stack_to_string(parser->stack);
-     char* input_pos = get_input_position_string(parser->input);
-     
-     // Debug output to file
+     // Debug output to file (format as specified in the design document)
      if (parser->debug_file) {
          fprintf(parser->debug_file, "Step %d:\n", step_number);
          fprintf(parser->debug_file, "Current State: %d\n", parser->current_state);
@@ -294,6 +321,9 @@
      free(input_pos);
  }
  
+ /**
+  * Get action from parsing table
+  */
  int get_action(ParsingTables* tables, int state, TokenType token_type) {
     if (!tables || state < 0 || state >= tables->num_states || 
         (int)token_type >= tables->num_terminals) {
@@ -302,56 +332,65 @@
     }
     
     return tables->action_table[state][token_type];
+ }
+ 
+/**
+ * Get goto state from parsing table
+ */
+int get_goto_state(ParsingTables* tables, int state, int non_terminal) {
+    if (!tables || state < 0 || state >= tables->num_states || 
+        non_terminal < 0 || non_terminal >= tables->num_non_terminals) {
+        return -1;
+    }
+    
+    return tables->goto_table[state][non_terminal];
 }
- 
- int get_goto_state(ParsingTables* tables, int state, int non_terminal) {
-     if (!tables || state < 0 || state >= tables->num_states || 
-         non_terminal < 0 || non_terminal >= tables->num_non_terminals) {
-         return -1;
-     }
-     
-     return tables->goto_table[state][non_terminal];
- }
- 
- /* Internal function implementations */
- 
- static void init_parser_stack(Parser* parser) {
-     if (!parser || !parser->stack) {
-         return;
-     }
-     
-     // Create a dummy EOF token
-     Token* eof_token = token_create(TOKEN_EOF, "$", 0, 0);
-     
-     // Push initial state and EOF token
-     stack_push(parser->stack, 0, eof_token);
-     parser->current_state = 0;
- }
- 
- static char* get_input_position_string(TokenStream* stream) {
-     if (!stream || !stream->current) {
-         return safe_strdup("End of Input");
-     }
-     
-     // Show current token and next few tokens
-     char* result = safe_strdup("");
-     Token* current = stream->current;
-     int count = 0;
-     
-     while (current && count < 5) {
-         char* token_str = token_to_string(current);
-         
-         // Add separator
-         if (count > 0) {
-             result = string_append(result, " ");
-         }
-         
-         result = string_append(result, token_str);
-         free(token_str);
-         
-         current = current->next;
-         count++;
-     }
-     
-     return result;
- }
+
+/* Internal function implementations */
+
+/**
+ * Initialize the parser stack with initial state
+ */
+static void init_parser_stack(Parser* parser) {
+    if (!parser || !parser->stack) {
+        return;
+    }
+    
+    // Create a dummy EOF token
+    Token* eof_token = token_create(TOKEN_EOF, "$", 0, 0);
+    
+    // Push initial state and EOF token
+    stack_push(parser->stack, 0, eof_token);
+    parser->current_state = 0;
+}
+
+/**
+ * Get a string representation of the current input position
+ */
+static char* get_input_position_string(TokenStream* stream) {
+    if (!stream || !stream->current) {
+        return safe_strdup("End of Input");
+    }
+    
+    // Show current token and next few tokens
+    char* result = safe_strdup("");
+    Token* current = stream->current;
+    int count = 0;
+    
+    while (current && count < 5) {
+        char* token_str = token_to_string(current);
+        
+        // Add separator
+        if (count > 0) {
+            result = string_append(result, " ");
+        }
+        
+        result = string_append(result, token_str);
+        free(token_str);
+        
+        current = current->next;
+        count++;
+    }
+    
+    return result;
+}

@@ -1,6 +1,7 @@
 /**
  * @file automaton.c
  * @brief Implementation of shift/reduce automaton
+ * @members: Group 
  */
 
  #include <stdio.h>
@@ -26,7 +27,7 @@
  // Number of symbols and states
  #define NUM_TERMINALS      6  // NUM, PLUS, STAR, LPAREN, RPAREN, EOF
  #define NUM_NON_TERMINALS  4  // S, E, T, F
- #define NUM_STATES         11 // States 0-10
+ #define NUM_STATES         12 // States 0-10
  #define NUM_PRODUCTIONS    7  // Productions 1-7
  
  // Grammar production rules from design document
@@ -59,7 +60,11 @@
  static void init_parsing_tables(ParsingTables* tables);
  static void setup_productions(ParsingTables* tables);
  
+ /**
+  * Initialize the automaton for the grammar
+  */
  ParsingTables* automaton_init() {
+    
      ParsingTables* tables = (ParsingTables*)safe_malloc(sizeof(ParsingTables));
      
      tables->num_states = NUM_STATES;
@@ -69,6 +74,7 @@
      
      // Allocate action table
      tables->action_table = (int**)safe_malloc(sizeof(int*) * NUM_STATES);
+     
      for (int i = 0; i < NUM_STATES; i++) {
          tables->action_table[i] = (int*)safe_malloc(sizeof(int) * NUM_TERMINALS);
          // Initialize with error actions
@@ -90,12 +96,18 @@
      // Setup productions
      setup_productions(tables);
      
+     
      // Initialize parsing tables based on the automaton
      init_parsing_tables(tables);
+     fprintf(stderr, "Error: Failed to create parser\n");
      
+
      return tables;
  }
  
+ /**
+  * Get action type from action value
+  */
  ActionType automaton_get_action_type(int action) {
      int type_bits = action & ACTION_MASK;
      
@@ -111,10 +123,16 @@
      }
  }
  
+ /**
+  * Get action value (state or production number)
+  */
  int automaton_get_action_value(int action) {
      return action & VALUE_MASK;
  }
  
+ /**
+  * Create an action value for parsing table
+  */
  int automaton_create_action(ActionType type, int value) {
      int action = 0;
      
@@ -137,6 +155,9 @@
      return action;
  }
  
+ /**
+  * Convert action value to string representation for debugging
+  */
  char* automaton_action_to_string(int action_value, ParsingTables* tables) {
      ActionType type = automaton_get_action_type(action_value);
      int value = automaton_get_action_value(action_value);
@@ -161,6 +182,9 @@
  
  /* Internal function implementations */
  
+ /**
+  * Set up grammar production rules
+  */
  static void setup_productions(ParsingTables* tables) {
      // Allocate memory for productions
      tables->productions = (Production*)safe_malloc(sizeof(Production) * (NUM_PRODUCTIONS + 1));
@@ -183,6 +207,9 @@
      }
  }
  
+ /**
+  * Initialize parsing tables with shift/reduce automaton
+  */
  static void init_parsing_tables(ParsingTables* tables) {
      // LR(0) parsing table for the grammar
      // This is a hardcoded version of the table based on the automaton in the design doc
@@ -192,6 +219,7 @@
      tables->goto_table[0][NON_TERMINAL_T] = 2;     // goto(0,T) = 2
      tables->goto_table[0][NON_TERMINAL_F] = 3;     // goto(0,F) = 3
      tables->action_table[0][TOKEN_NUM] = automaton_create_action(ACTION_SHIFT, 5);      // shift to state 5
+     
      tables->action_table[0][TOKEN_LPAREN] = automaton_create_action(ACTION_SHIFT, 4);   // shift to state 4
      
      // State 1
@@ -212,6 +240,7 @@
      
      // State 4
      tables->goto_table[4][NON_TERMINAL_E] = 8;     // goto(4,E) = 8
+     
      tables->goto_table[4][NON_TERMINAL_T] = 2;     // goto(4,T) = 2
      tables->goto_table[4][NON_TERMINAL_F] = 3;     // goto(4,F) = 3
      tables->action_table[4][TOKEN_NUM] = automaton_create_action(ACTION_SHIFT, 5);      // shift to state 5
@@ -249,10 +278,14 @@
      tables->action_table[10][TOKEN_STAR] = automaton_create_action(ACTION_REDUCE, 4);   // reduce using rule 4
      tables->action_table[10][TOKEN_RPAREN] = automaton_create_action(ACTION_REDUCE, 4); // reduce using rule 4
      tables->action_table[10][TOKEN_EOF] = automaton_create_action(ACTION_REDUCE, 4);    // reduce using rule 4
-     
+     fprintf(stderr, "Error: Failed to create parser\n");
      // State 11
      tables->action_table[11][TOKEN_PLUS] = automaton_create_action(ACTION_REDUCE, 6);   // reduce using rule 6
+     fprintf(stderr, "Error: Failed to create parser\n");
      tables->action_table[11][TOKEN_STAR] = automaton_create_action(ACTION_REDUCE, 6);   // reduce using rule 6
+     fprintf(stderr, "Error: Failed to create parser\n");
      tables->action_table[11][TOKEN_RPAREN] = automaton_create_action(ACTION_REDUCE, 6); // reduce using rule 6
+     fprintf(stderr, "Error: Failed to create parser\n");
      tables->action_table[11][TOKEN_EOF] = automaton_create_action(ACTION_REDUCE, 6);    // reduce using rule 6
+     fprintf(stderr, "Error: Failed to create parser\n");
  }
