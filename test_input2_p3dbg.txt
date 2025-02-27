@@ -1,0 +1,7 @@
+Step 1:
+Current State: 0
+Stack Contents: [[0 <EOF, "$", 0, 0>]]
+Input Position: <EOF, "EOF", 1, 25>
+Operation: ERROR
+Action: Invalid syntax
+

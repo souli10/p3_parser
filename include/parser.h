@@ -128,15 +128,6 @@
  bool perform_reduce(Parser* parser, int production_num);
  
  /**
-  * @brief Write debug information
-  * 
-  * @param parser Parser
-  * @param operation Operation name
-  * @param action Action details
-  */
- void write_debug_output(Parser* parser, const char* operation, const char* action);
- 
- /**
   * @brief Get action from parsing table
   * 
   * @param tables Parsing tables

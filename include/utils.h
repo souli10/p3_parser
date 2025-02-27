@@ -69,5 +69,28 @@
   * @return char* New combined string
   */
  char* string_append(char* original, const char* append);
+
+  /**
+  * @brief Write debug information
+  * 
+  * @param parser Parser
+  * @param operation Operation name
+  * @param action Action details
+  */
+ void write_debug_output(Parser* parser, const char* operation, const char* action);
+
+/**
+ * @brief prints the correct usage in the terminal
+ * 
+ * @param program_name The program name 
+ */
+ void print_usage(const char* program_name);
+
+ /**
+  * @brief Generates the name of the output file
+  * 
+  * @param input_file The input file of the program
+  */
+ char* generate_output_filename(const char* input_file);
  
  #endif /* UTILS_H */

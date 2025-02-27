@@ -278,50 +278,6 @@
  }
  
  /**
-  * Write debugging information to output file/console
-  */
- void write_debug_output(Parser* parser, const char* operation, const char* action) {
-    static int step_number = 0;
-    step_number++;
-    
-    char* stack_str = stack_to_string(parser->stack);
-    char* input_pos = get_input_position_string(parser->input);
-    
-    // Always print to console regardless of debug_mode
-    printf("Step %d:\n", step_number);
-    printf("Current State: %d\n", parser->current_state);
-    printf("Stack Contents: %s\n", stack_str);
-    printf("Input Position: %s\n", input_pos);
-    printf("Operation: %s\n", operation);
-    printf("Action: %s\n\n", action);
-    
-     
-     // Debug output to file (format as specified in the design document)
-     if (parser->debug_file) {
-         fprintf(parser->debug_file, "Step %d:\n", step_number);
-         fprintf(parser->debug_file, "Current State: %d\n", parser->current_state);
-         fprintf(parser->debug_file, "Stack Contents: %s\n", stack_str);
-         fprintf(parser->debug_file, "Input Position: %s\n", input_pos);
-         fprintf(parser->debug_file, "Operation: %s\n", operation);
-         fprintf(parser->debug_file, "Action: %s\n\n", action);
-     }
-     
-     // Debug output to console if enabled
-     if (parser->debug_mode) {
-         log_debug(true, "Step %d:", step_number);
-         log_debug(true, "Current State: %d", parser->current_state);
-         log_debug(true, "Stack Contents: %s", stack_str);
-         log_debug(true, "Input Position: %s", input_pos);
-         log_debug(true, "Operation: %s", operation);
-         log_debug(true, "Action: %s", action);
-         log_debug(true, "--------------------");
-     }
-     
-     free(stack_str);
-     free(input_pos);
- }
- 
- /**
   * Get action from parsing table
   */
  int get_action(ParsingTables* tables, int state, TokenType token_type) {
