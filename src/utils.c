@@ -10,8 +10,7 @@
  #include <stdarg.h>
  #include "../include/utils.h"
  #include"../include/parser.h"
- #include"../src/parser.c"
-
+ 
  /**
   * Safe string duplication with error handling
   */
@@ -135,87 +134,3 @@
      
      return original;
  }
-
- /**
-  * Write debugging information to output file/console
-  */
- void write_debug_output(Parser* parser, const char* operation, const char* action) {
-    static int step_number = 0;
-    step_number++;
-    
-    char* stack_str = stack_to_string(parser->stack);
-    char* input_pos = get_input_position_string(parser->input);
-    
-    // Always print to console regardless of debug_mode
-    printf("Step %d:\n", step_number);
-    printf("Current State: %d\n", parser->current_state);
-    printf("Stack Contents: %s\n", stack_str);
-    printf("Input Position: %s\n", input_pos);
-    printf("Operation: %s\n", operation);
-    printf("Action: %s\n\n", action);
-    
-     
-     // Debug output to file (format as specified in the design document)
-     if (parser->debug_file) {
-         fprintf(parser->debug_file, "Step %d:\n", step_number);
-         fprintf(parser->debug_file, "Current State: %d\n", parser->current_state);
-         fprintf(parser->debug_file, "Stack Contents: %s\n", stack_str);
-         fprintf(parser->debug_file, "Input Position: %s\n", input_pos);
-         fprintf(parser->debug_file, "Operation: %s\n", operation);
-         fprintf(parser->debug_file, "Action: %s\n\n", action);
-     }
-     
-     // Debug output to console if enabled
-     if (parser->debug_mode) {
-         log_debug(true, "Step %d:", step_number);
-         log_debug(true, "Current State: %d", parser->current_state);
-         log_debug(true, "Stack Contents: %s", stack_str);
-         log_debug(true, "Input Position: %s", input_pos);
-         log_debug(true, "Operation: %s", operation);
-         log_debug(true, "Action: %s", action);
-         log_debug(true, "--------------------");
-     }
-     
-     free(stack_str);
-     free(input_pos);
- }
-
-  /**
-  * Print program usage information
-  */
- void print_usage(const char* program_name) {
-    printf("Usage: %s <input_file>\n", program_name);
-    printf("  <input_file>: Path to the input file (.cscn)\n");
-    printf("  Output will be saved to <input_file>_p3dbg.txt\n");
-}
-
-/**
- * Generate output filename from input filename
- * Follows the format: <input_basename>_p3dbg.txt
- */
-char* generate_output_filename(const char* input_file) {
-    // Extract the base filename without path
-    char* base_name = strrchr(input_file, '/');
-    if (base_name == NULL) {
-        base_name = strrchr(input_file, '\\');
-    }
-    
-    if (base_name != NULL) {
-        base_name++; // Skip the slash
-    } else {
-        base_name = (char*)input_file; // No path separator found
-    }
-    
-    // Find extension and remove it if present
-    char* basename_copy = safe_strdup(base_name);
-    char* dot = strrchr(basename_copy, '.');
-    if (dot != NULL) {
-        *dot = '\0'; // Truncate at the dot
-    }
-    
-    // Create output filename: <basename>_p3dbg.txt
-    char* output_file = string_format("%s_p3dbg.txt", basename_copy);
-    free(basename_copy);
-    
-    return output_file;
-}
