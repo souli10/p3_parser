@@ -10,7 +10,8 @@
  #include <stdarg.h>
  #include "../include/utils.h"
  #include"../include/parser.h"
- 
+ #include"../src/parser.c"
+
  /**
   * Safe string duplication with error handling
   */

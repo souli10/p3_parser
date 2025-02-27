@@ -9,6 +9,7 @@
  #include <stdio.h>
  #include <stdlib.h>
  #include <stdbool.h>
+ #include "../include/parser.h"
  
  /**
   * @brief Safe string duplication
