@@ -99,7 +99,7 @@
      
      // Initialize parsing tables based on the automaton
      init_parsing_tables(tables);
-     fprintf(stderr, "Error: Failed to create parser\n");
+
      
 
      return tables;
@@ -219,7 +219,6 @@
      tables->goto_table[0][NON_TERMINAL_T] = 2;     // goto(0,T) = 2
      tables->goto_table[0][NON_TERMINAL_F] = 3;     // goto(0,F) = 3
      tables->action_table[0][TOKEN_NUM] = automaton_create_action(ACTION_SHIFT, 5);      // shift to state 5
-     
      tables->action_table[0][TOKEN_LPAREN] = automaton_create_action(ACTION_SHIFT, 4);   // shift to state 4
      
      // State 1
@@ -240,7 +239,6 @@
      
      // State 4
      tables->goto_table[4][NON_TERMINAL_E] = 8;     // goto(4,E) = 8
-     
      tables->goto_table[4][NON_TERMINAL_T] = 2;     // goto(4,T) = 2
      tables->goto_table[4][NON_TERMINAL_F] = 3;     // goto(4,F) = 3
      tables->action_table[4][TOKEN_NUM] = automaton_create_action(ACTION_SHIFT, 5);      // shift to state 5
@@ -278,14 +276,11 @@
      tables->action_table[10][TOKEN_STAR] = automaton_create_action(ACTION_REDUCE, 4);   // reduce using rule 4
      tables->action_table[10][TOKEN_RPAREN] = automaton_create_action(ACTION_REDUCE, 4); // reduce using rule 4
      tables->action_table[10][TOKEN_EOF] = automaton_create_action(ACTION_REDUCE, 4);    // reduce using rule 4
-     fprintf(stderr, "Error: Failed to create parser\n");
+  
      // State 11
      tables->action_table[11][TOKEN_PLUS] = automaton_create_action(ACTION_REDUCE, 6);   // reduce using rule 6
-     fprintf(stderr, "Error: Failed to create parser\n");
      tables->action_table[11][TOKEN_STAR] = automaton_create_action(ACTION_REDUCE, 6);   // reduce using rule 6
-     fprintf(stderr, "Error: Failed to create parser\n");
      tables->action_table[11][TOKEN_RPAREN] = automaton_create_action(ACTION_REDUCE, 6); // reduce using rule 6
-     fprintf(stderr, "Error: Failed to create parser\n");
      tables->action_table[11][TOKEN_EOF] = automaton_create_action(ACTION_REDUCE, 6);    // reduce using rule 6
-     fprintf(stderr, "Error: Failed to create parser\n");
+
  }

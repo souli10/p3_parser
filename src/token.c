@@ -1,7 +1,7 @@
 /**
  * token.c
  * Fixed implementation that handles multiple tokens per line
- * Replace your current token.c with this file
+ * and properly represents non-terminal symbols
  */
 
  #include <stdio.h>
@@ -28,14 +28,35 @@
      "LPAREN",
      "RPAREN",
      "EOF",
-     "INVALID"
+     "INVALID",
+     "NON_TERMINAL"
  };
+ 
+ /**
+  * Non-terminal symbol names
+  */
+ static const char* NON_TERMINAL_NAMES[] = {
+     "S",  // Start symbol
+     "E",  // Expression
+     "T",  // Term
+     "F"   // Factor
+ };
+ 
+ /**
+  * @brief Get string name of a non-terminal symbol
+  */
+ const char* get_non_terminal_name(int non_terminal) {
+     if (non_terminal >= 0 && non_terminal < sizeof(NON_TERMINAL_NAMES)/sizeof(NON_TERMINAL_NAMES[0])) {
+         return NON_TERMINAL_NAMES[non_terminal];
+     }
+     return "UNKNOWN";
+ }
  
  /**
   * Convert token type string to enum
   */
  TokenType token_type_from_string(const char* type_str) {
-     for (int i = 0; i <= TOKEN_INVALID; i++) {
+     for (int i = 0; i <= TOKEN_NON_TERMINAL; i++) {
          if (strcmp(type_str, TOKEN_TYPE_NAMES[i]) == 0) {
              return (TokenType)i;
          }
@@ -67,10 +88,10 @@
  }
  
  /**
-  * Convert token type to string
+  * Convert token type to string representation
   */
  const char* token_type_to_string(TokenType type) {
-     if (type >= TOKEN_NUM && type <= TOKEN_INVALID) {
+     if (type >= TOKEN_NUM && type <= TOKEN_NON_TERMINAL) {
          return TOKEN_TYPE_NAMES[type];
      }
      return "UNKNOWN";
@@ -113,8 +134,8 @@
      stream->current = scan_token(stream);
      if (stream->current) {
          printf("First token: %s, type: %s\n", 
-               stream->current->lexeme, 
-               token_type_to_string(stream->current->type));
+                stream->current->lexeme, 
+                token_type_to_string(stream->current->type));
      } else {
          printf("No tokens read from file\n");
      }
@@ -170,8 +191,8 @@
              
              if (next_token) {
                  printf("Next token: %s, type: %s\n", 
-                       next_token->lexeme, 
-                       token_type_to_string(next_token->type));
+                        next_token->lexeme, 
+                        token_type_to_string(next_token->type));
              }
          }
      }
@@ -216,7 +237,7 @@
  
  /**
   * Parse tokens from file
-  * FIXED: This function now properly handles multiple tokens per line
+  * Handles multiple tokens per line and properly formats them
   */
  static Token* scan_token(TokenStream* stream) {
      if (!stream || !stream->input_file) {
@@ -317,7 +338,7 @@
      
      // If we get here, we couldn't parse a token at the current position
      printf("Invalid token format at line %d, position %d: %.10s...\n", 
-           line, position, current_pos);
+            line, position, current_pos);
      
      // Skip to the next '<' or end of line
      while (*current_pos && *current_pos != '<' && *current_pos != '\n') {

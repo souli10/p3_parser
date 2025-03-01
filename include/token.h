@@ -21,7 +21,8 @@
      TOKEN_LPAREN, // '('
      TOKEN_RPAREN, // ')'
      TOKEN_EOF,    // End of file
-     TOKEN_INVALID // Invalid token
+     TOKEN_INVALID, // Invalid token
+     TOKEN_NON_TERMINAL // Non-terminal symbol
  } TokenType;
  
  /**
@@ -80,6 +81,14 @@
   * @return const char* String representation
   */
  const char* token_type_to_string(TokenType type);
+ 
+ /**
+  * @brief Get string name of a non-terminal symbol
+  * 
+  * @param non_terminal Non-terminal symbol code
+  * @return const char* String representation
+  */
+ const char* get_non_terminal_name(int non_terminal);
  
  /**
   * @brief Get string representation of a token

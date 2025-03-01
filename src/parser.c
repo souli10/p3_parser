@@ -230,53 +230,57 @@
  /**
   * Perform reduce operation
   */
- bool perform_reduce(Parser* parser, int production_num) {
-     if (!parser || !parser->tables || production_num <= 0 || production_num > parser->tables->num_productions) {
-         return false;
-     }
-     
-     Production* production = &parser->tables->productions[production_num];
-     
-     // Pop rhs_length symbols from the stack
-     for (int i = 0; i < production->rhs_length; i++) {
-         StackElement* element = stack_pop(parser->stack);
-         if (!element) {
-             log_error("Stack underflow during reduction");
-             return false;
-         }
-         free(element);
-     }
-     
-     // Get the state at the top of the stack
-     StackElement* top = stack_peek(parser->stack);
-     if (!top) {
-         log_error("Stack underflow after reduction");
-         return false;
-     }
-     
-     int state = top->state;
-     
-     // Get the goto state for the LHS non-terminal
-     int goto_state = get_goto_state(parser->tables, state, production->lhs);
-     if (goto_state < 0) {
-         log_error("Invalid goto state for non-terminal %d from state %d", production->lhs, state);
-         return false;
-     }
-     
-     // Create a dummy token for the LHS non-terminal
-     // This is a simplified approach - in a real parser you might create AST nodes
-     Token* lhs_token = token_create(production->lhs, "non-terminal", 0, 0);
-     
-     // Push the goto state and LHS non-terminal
-     bool result = stack_push(parser->stack, goto_state, lhs_token);
-     
-     if (result) {
-         parser->current_state = goto_state;
-     }
-     
-     return result;
- }
- 
+ /**
+ * Perform reduce operation
+ */
+bool perform_reduce(Parser* parser, int production_num) {
+    if (!parser || !parser->tables || production_num <= 0 || production_num > parser->tables->num_productions) {
+        return false;
+    }
+    
+    Production* production = &parser->tables->productions[production_num];
+    
+    // Pop rhs_length symbols from the stack
+    for (int i = 0; i < production->rhs_length; i++) {
+        StackElement* element = stack_pop(parser->stack);
+        if (!element) {
+            log_error("Stack underflow during reduction");
+            return false;
+        }
+        free(element);
+    }
+    
+    // Get the state at the top of the stack
+    StackElement* top = stack_peek(parser->stack);
+    if (!top) {
+        log_error("Stack underflow after reduction");
+        return false;
+    }
+    
+    int state = top->state;
+    
+    // Get the goto state for the LHS non-terminal
+    int goto_state = get_goto_state(parser->tables, state, production->lhs);
+    if (goto_state < 0) {
+        log_error("Invalid goto state for non-terminal %d from state %d", production->lhs, state);
+        return false;
+    }
+    
+    // Create a token for the LHS non-terminal with proper type and name
+    Token* lhs_token = token_create(TOKEN_NON_TERMINAL, 
+                                   get_non_terminal_name(production->lhs), 
+                                   0, 0);
+    
+    // Push the goto state and LHS non-terminal
+    bool result = stack_push(parser->stack, goto_state, lhs_token);
+    
+    if (result) {
+        parser->current_state = goto_state;
+    }
+    
+    return result;
+}
+
  /**
   * Write debugging information to output file/console
   */
