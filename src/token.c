@@ -46,7 +46,7 @@
   * @brief Get string name of a non-terminal symbol
   */
  const char* get_non_terminal_name(int non_terminal) {
-     if (non_terminal >= 0 && non_terminal < sizeof(NON_TERMINAL_NAMES)/sizeof(NON_TERMINAL_NAMES[0])) {
+    if (non_terminal >= 0 && non_terminal < (int)(sizeof(NON_TERMINAL_NAMES)/sizeof(NON_TERMINAL_NAMES[0]))) {
          return NON_TERMINAL_NAMES[non_terminal];
      }
      return "UNKNOWN";
