@@ -92,7 +92,6 @@ Replace `<file>` with the path to your input file.
 > [!CAUTION]
 > Ensure you compile the parser first before attempting these two test options.
 
-Sure, here is an explanation of each test case and the expected output:
 
 ## Tests
 
